@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  scraping-service:
+    build: .
+    container_name: scraping-service
+    ports:
+      - "8000:8000"
+    environment:
+      - RABBITMQ__HOST=host.docker.internal
+      - RABBITMQ__PORT=5672
+      - RABBITMQ__USERNAME=marakhib
+      - RABBITMQ__PASSWORD=Marakhib
+      - DEBUG=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    networks:
+      - marakhib-network
+
+networks:
+  marakhib-network:
+    driver: bridge

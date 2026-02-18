@@ -1,0 +1,10 @@
+fastapi
+httpx
+aiohttp
+beautifulsoup4
+lxml
+pydantic
+pydantic-settings
+aio-pika
+uvicorn
+python-dotenv
