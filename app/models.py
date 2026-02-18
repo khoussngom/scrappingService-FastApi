@@ -36,13 +36,25 @@ class ProductCreatedEvent(BaseModel):
 
 class ProductPriceComputedEvent(BaseModel):
     """Événement envoyé à Boutique Service après calcul du prixconseillé"""
-    product_id: str = Field(..., description="ID unique du produit")
-    product_name: str = Field(..., description="Nom du produit")
-    owner_price: float = Field(..., description="Prix du propriétaire")
-    computed_price: float | None = Field(default=None, description="Prix calculé selon la stratégie")
+    product_id: str = Field(..., description="ID unique du produit", serialization_alias="productId")
+    product_name: str = Field(..., description="Nom du produit", serialization_alias="productName")
+    owner_price: float = Field(..., description="Prix du propriétaire", serialization_alias="ownerPrice")
+    computed_price: float | None = Field(default=None, description="Prix calculé selon la stratégie", serialization_alias="computedPrice")
     found: bool = Field(default=False, description="True si un prix moyen a été trouvé sur le marché")
     profitable: bool = Field(default=False, description="True si le prix calculé est rentable (>= owner_price)")
     strategy: str = Field(default="UNKNOWN", description="Stratégie de pricing appliquée")
-    alert_supplier: bool = Field(default=False, description="True si le fournisseur doit être alerté (prix non rentable)")
+    alert_supplier: bool = Field(default=False, description="True si le fournisseur doit être alerté (prix non rentable)", serialization_alias="alertSupplier")
     source: str = Field(default="SCRAPER", description="Source du calcul de prix")
-    market_avg_price: float | None = Field(default=None, description="Prix moyen trouvé sur le marché")
+    market_avg_price: float | None = Field(default=None, description="Prix moyen trouvé sur le marché", serialization_alias="marketAvgPrice")
+
+
+class ProductUpdatedEvent(BaseModel):
+    """Événement reçu depuis Boutique Service lors de la mise à jour d'un produit"""
+    product_id: str = Field(..., description="ID unique du produit")
+    product_name: str = Field(..., description="Nom du produit")
+    owner_price: float = Field(..., gt=0, description="Prix fixé par le propriétaire")
+
+
+class ProductDeletedEvent(BaseModel):
+    """Événement reçu depuis Boutique Service lors de la suppression d'un produit"""
+    product_id: str = Field(..., description="ID unique du produit")
