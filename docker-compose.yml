@@ -1,23 +1,55 @@
 version: '3.8'
 
 services:
+  # -------------------------------------------------------------------------
+  # Scraping Service
+  # -------------------------------------------------------------------------
   scraping-service:
-    build: .
-    container_name: scraping-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mb-scraping-service
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
-      - RABBITMQ__HOST=host.docker.internal
+      - RABBITMQ__HOST=rabbitmq
       - RABBITMQ__PORT=5672
       - RABBITMQ__USERNAME=marakhib
       - RABBITMQ__PASSWORD=Marakhib
-      - DEBUG=true
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
+    networks:
+      - marakhib-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # -------------------------------------------------------------------------
+  # RabbitMQ (Optionnel - pour développement)
+  # -------------------------------------------------------------------------
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: mb-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: marakhib
+      RABBITMQ_DEFAULT_PASS: Marakhib
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - marakhib-network
 
 networks:
   marakhib-network:
     driver: bridge
+
+volumes:
+  rabbitmq_data:
