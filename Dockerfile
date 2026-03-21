@@ -8,17 +8,13 @@
 # -----------------------------------------------------------------------------
 # STAGE 1: BUILD
 # -----------------------------------------------------------------------------
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 # Variables d'environnement pour optimisation
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    POETRY_VERSION=1.7.1
-
-# Installer Poetry pour gestion des dépendances
-RUN pip install poetry==1.7.1
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Working directory
 WORKDIR /app
@@ -26,17 +22,16 @@ WORKDIR /app
 # -----------------------------------------------------------------------------
 # COPIER LES FICHIERS DE DÉPENDANCES AVANT LE CODE
 # -----------------------------------------------------------------------------
-# Copier pyproject.toml et poetry.lock pour le cache Docker
-COPY pyproject.toml poetry.lock ./
+# Copier requirements.txt pour profiter du cache Docker
+COPY requirements.txt ./
 
-# Installer les dépendances dans le système (pas de virtualenv)
-RUN poetry config virtualenvs.create false && \
-    poetry install --no-interaction --no-ansi --no-root
+# Installer les dépendances Python
+RUN pip install --no-cache-dir -r requirements.txt
 
 # -----------------------------------------------------------------------------
 # STAGE 2: RUNTIME
 # -----------------------------------------------------------------------------
-FROM python:3.11-slim as runtime
+FROM python:3.11-slim AS runtime
 
 # Variables d'environnement
 ENV PYTHONUNBUFFERED=1 \
@@ -91,4 +86,3 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 # ENTRYPOINT
 # -------------------------------------------------------------------------
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-

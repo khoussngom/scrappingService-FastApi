@@ -81,6 +81,12 @@ async def root():
     }
 
 
+@app.get("/health", tags=["health"])
+async def health():
+    """Endpoint de santé pour Docker et les sondes externes."""
+    return {"status": "healthy"}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
