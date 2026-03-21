@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class RabbitMQConsumer:
-    """Consommateur RabbitMQ pour les événements de création de produit"""
+  
     
     def __init__(self):
         self.connection: Optional[AbstractRobustConnection] = None
@@ -23,7 +23,7 @@ class RabbitMQConsumer:
         self._consuming = False
     
     async def connect(self) -> None:
-        """Établit la connexion avec RabbitMQ"""
+       
         try:
             self.connection = await aio_pika.connect_robust(
                 settings.rabbitmq.url,
@@ -31,7 +31,7 @@ class RabbitMQConsumer:
             )
             self.channel = await self.connection.channel()
             
-            # Déclarer l'exchange principal (topic exchange)
+           
             await self.channel.declare_exchange(
                 settings.exchange_name,
                 aio_pika.ExchangeType.TOPIC,
